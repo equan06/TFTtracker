@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QInputDialog
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QWidget
 
 
@@ -26,7 +27,7 @@ class View(QMainWindow):
         self.mode = "Normal"  # 3 states: Normal, Rename, Delete
 
         self.setWindowTitle('matchmakin')
-        self.setFixedSize(800, 400)
+        self.setMinimumSize(800, 400)
         self.setStyleSheet("background-color: #212121")
         self.generalLayout = QVBoxLayout()  # vertical widget layout
 
@@ -95,12 +96,12 @@ class View(QMainWindow):
                     pass
 
                 if pid in self.model.opponents:
-                    plr_btn.setStyleSheet("QPushButton {color: #ffffff; background-color: #19451c}")
+                    plr_btn.setStyleSheet("QPushButton {color: #ffffff; background-color: #19451c; font-size:12px}")
                     plr_btn.clicked.connect(partial(self.model.fightPlayer, pid))
                     plr_btn.clicked.connect(self.updateDisplays)
                     plr_btn.clicked.connect(self.connectPlayerButtons)
                 elif pid in self.model.notOpponents:
-                    plr_btn.setStyleSheet("QPushButton {color: #ffffff; background-color: #45191f}")
+                    plr_btn.setStyleSheet("QPushButton {color: #ffffff; background-color: #45191f; font-size:12px}")
 
                 # don't do anything if player dead
 
@@ -109,16 +110,18 @@ class View(QMainWindow):
 
     def createCmdButtons(self):
         self.cmd_buttons = {}
-        button_names = ["Reset", "Rename", "Delete", "New Game"]
+        button_names = ["Reset", "Rename", "Delete", "Undo Fight", "New Game"]
         cmd_layout = QHBoxLayout()
         for btn in button_names:
             self.cmd_buttons[btn] = QPushButton(btn)
-            self.cmd_buttons[btn].setFixedSize(160, 40)
-            self.cmd_buttons[btn].setStyleSheet("color: white; background-color: grey")
+            self.cmd_buttons[btn].setMinimumSize(100, 40)
+            self.cmd_buttons[btn].setMaximumSize(220, 80)
+            self.cmd_buttons[btn].setStyleSheet("color: white; background-color: grey; font-size: 14px")
+            self.cmd_buttons[btn].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
             if (btn == "Rename") | (btn == "Delete"):
                 self.cmd_buttons[btn].setCheckable(True)
-                self.cmd_buttons[btn].setStyleSheet("QPushButton {color:white; background-color: grey}"
-                                                    "QPushButton:checked {color: white; background-color: #705e43}")
+                self.cmd_buttons[btn].setStyleSheet("QPushButton {color:white; background-color: grey; font-size: 14px}"
+                                                    "QPushButton:checked {color: white; background-color: #705e43; font-size: 14px}")
             cmd_layout.addWidget(self.cmd_buttons[btn])
         self.generalLayout.addLayout(cmd_layout)
 
@@ -128,7 +131,9 @@ class View(QMainWindow):
         for pid, name in self.model.names.items():
             if (pid in self.model.opponents):
                 self.playerButtons[pid] = QPushButton(name)
-                self.playerButtons[pid].setFixedSize(100, 40)
+                self.playerButtons[pid].setMinimumSize(100, 40)
+                self.playerButtons[pid].setMaximumSize(200, 60)
+                self.playerButtons[pid].setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
                 player_layout.addWidget(self.playerButtons[pid])
 
@@ -151,6 +156,9 @@ class View(QMainWindow):
         self.cmd_buttons["Delete"].clicked.connect(partial(self.toggleMode, "Delete"))
         self.cmd_buttons["Delete"].clicked.connect(self.connectPlayerButtons)
 
+        self.cmd_buttons["Undo Fight"].clicked.connect(self.model.undo)
+        self.cmd_buttons["Undo Fight"].clicked.connect(self.connectPlayerButtons)
+        self.cmd_buttons["Undo Fight"].clicked.connect(self.updateDisplays)
 
     def createDisplay(self):
         self.display = QLineEdit()
@@ -233,8 +241,6 @@ class Model:
     def reset(self):
         self.opponents = self.opponents + self.notOpponents
         self.notOpponents = []
-        self.nextOpponent = None
-        self.justFought = None
 
 
     def newGame(self):
@@ -243,28 +249,40 @@ class Model:
         self.notOpponents = []
         self.numOpponents = 7
         self.numAlive = 8
-        self.nextOpponent = None
+        self.opponentHistory = []
 
     def fightPlayer(self, pid):
+        self.opponentHistory.append((self.opponents.copy(), self.notOpponents.copy()))
         self.opponents.remove(pid)
         self.notOpponents.append(pid)
         self.numOpponents = len(self.opponents)
-        self.justFought = pid
 
-        while False: # debugging
-            print(len(self.notOpponents))
-            print(self.numAlive)
-            print(self.numOpponents)
+
+
 
         if len(self.notOpponents) > self.numAlive - 4:
             if self.numAlive > 3 & self.numOpponents < 3:
-                self.nextOpponent = self.notOpponents.pop(0)
-                self.opponents.append(self.nextOpponent)
+                self.opponents.insert(0, self.notOpponents.pop(0))
 
+        print(self.opponents)
+        print(self.notOpponents)
+        print(self.opponentHistory)
+
+    def undo(self):
+        print(self.opponentHistory)
+        if len(self.opponentHistory) > 0:
+
+            self.opponents, self.notOpponents = self.opponentHistory.pop()
+
+
+            print(self.opponents)
+            print(self.notOpponents)
 
 
 
     def deletePlayer(self, pid):
+
+
         try:
             self.opponents.remove(pid)
         except ValueError:
@@ -274,15 +292,11 @@ class Model:
         except ValueError:
             pass
 
-        print(self.opponents)
-        print(self.notOpponents)
+        self.opponentHistory = []
         self.numAlive -= 1
         self.numOpponents = len(self.opponents)
-        self.nextOpponent = None
 
 
-    def getNextOpponent(self):
-        return self.nextOpponent
 
 
 
