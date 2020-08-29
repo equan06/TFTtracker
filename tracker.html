@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>TFT Matchmaking Tracker</title>
+<meta charset="UTF-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1"> 
+<link rel="stylesheet" href="styles.css">
+<script src="tracker.js" async></script>
+</head>   
+
+<body>
+    <header>
+        <h1>TFT Matchmaking Tracker</h1>
+        <p>Track your opponents' match history and predict your next opponent.</p>
+    </header>
+        
+    <section>
+        <p class="display" id="opponents">Opponents:</p>
+        <p class="display" id="history">History:</p>
+        <div class="player-grid">
+            <button class="player" id="0">0</button>
+            <button class="player" id="1">1</button>
+            <button class="player" id="2">2</button>
+            <button class="player" id="3">3</button>
+            <button class="player" id="4">4</button>
+            <button class="player" id="5">5</button>
+            <button class="player" id="6">6</button>
+        </div>
+        <br>
+        <div class ="cmd-grid">
+            <button class="cmd" id="newgame">New Game</button>
+            <button class="cmd" id="reset">Reset</button>
+            <button class="cmd" id="rename" toggle=false>Rename</button>
+            <button class="cmd" id="delete">Delete</button>
+            <button class="cmd" id="undo">Undo</button>
+        </div>
+        <div>
+                <p>Enter names below on new lines.</p>
+                <textarea id="textarea" name="playerNames" rows="7" cols="30">Enter names here.</textarea>
+                <br>
+                <button class="submit" id="submit">Submit</button>
+            
+        </div>
+    </section>
+    
+
+
+</body>
+
+</html>

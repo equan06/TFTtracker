@@ -1,0 +1,40 @@
+html{
+    background-color: #171717;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+body{
+    text-align: center;
+}
+
+.player-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 140px);
+    grid-template-rows: repeat(3, 140px);
+    grid-gap: 10px;
+    justify-content: center;
+}
+
+button.player {
+    font-size: 14px;
+    background-color: #226100;
+    color: white;
+    border-radius: 4px;
+    border: 1px solid #454545;
+    height: 140px;
+}
+
+.cmd-grid {
+    display: grid;
+    grid-template-columns: 140px 140px 140px;
+    grid-gap: 10px;
+    justify-content: center;
+}
+
+button {
+    background-color: #424242;
+    height: 30px;
+    border-radius: 4px;
+    border: 1px solid #454545;
+}
+
